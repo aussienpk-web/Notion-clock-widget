@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Embedded Widget</title>
+    <!-- Modern rounded font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Card Container matching exact proportions and colors */
+        .widget-card {
+            background-color: #fbf7e8; /* Warm off-white/cream background */
+            width: 100%;
+            max-width: 520px;
+            border-radius: 20px;
+            padding: 24px 28px 22px 28px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Top Layout Header */
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        /* Sun / Time Icon Style */
+        .weather-icon {
+            color: #bdc7ad; /* Soft muted sage for icon */
+            width: 44px;
+            height: 44px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .weather-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke-width: 1.6;
+        }
+
+        /* Big Clock Styling */
+        .clock-display {
+            font-size: 88px;
+            font-weight: 500;
+            color: #cad3b8; /* Muted light sage green for huge numbers */
+            line-height: 0.9;
+            letter-spacing: -2px;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Content / Text Area */
+        .bottom-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 10px;
+        }
+
+        /* Greeting message style */
+        .greeting-container {
+            font-size: 26px;
+            font-weight: 600;
+            color: #7d8e6a; /* Sage green for greeting */
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Editable name placeholder */
+        .editable-name {
+            color: #7d8e6a;
+            outline: none;
+            border-bottom: 2px dashed dotted transparent;
+            padding: 0 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+            min-width: 50px;
+        }
+
+        .editable-name:hover {
+            background-color: rgba(125, 142, 106, 0.1);
+            border-bottom-color: #7d8e6a;
+        }
+
+        .editable-name:focus {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-bottom: 2px solid #7d8e6a;
+            cursor: text;
+        }
+
+        /* Date text styling */
+        .date-display {
+            font-size: 21px;
+            font-weight: 600;
+            color: #9cb088; /* Slightly lighter sage green for date */
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+        }
+
+        /* Settings hint on hover */
+        .edit-tooltip {
+            position: absolute;
+            bottom: 8px;
+            right: 14px;
+            font-size: 10px;
+            color: #b5c2a3;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .widget-card:hover .edit-tooltip {
+            opacity: 0.7;
+        }
+
+        /* Media queries for fluid scaling on tiny widgets */
+        @media (max-width: 420px) {
+            .widget-card {
+                padding: 18px 20px 16px 20px;
+            }
+            .clock-display {
+                font-size: 68px;
+            }
+            .greeting-container {
+                font-size: 20px;
+            }
+            .date-display {
+                font-size: 16px;
+            }
+            .weather-icon {
+                width: 36px;
+                height: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-card">
+        <!-- Top Section: Icon & Large Clock -->
+        <div class="top-row">
+            <div class="weather-icon" id="time-icon">
+                <!-- Sun SVG matching image style exactly -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </div>
+            <div class="clock-display" id="clock">16:05</div>
+        </div>
+
+        <!-- Bottom Section: Dynamic Greeting & Date -->
+        <div class="bottom-section">
+            <div class="greeting-container">
+                <span id="greeting-text">Good afternoon,</span>
+                <span id="user-name" class="editable-name" contenteditable="true" title="Click to edit name" spellcheck="false">[Your Name]</span>
+            </div>
+            <div class="date-display" id="date-display">WED, OCT 21</div>
+        </div>
+
+        <div class="edit-tooltip">Click name to edit</div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const clockEl = document.getElementById('clock');
+        const greetingTextEl = document.getElementById('greeting-text');
+        const userNameEl = document.getElementById('user-name');
+        const dateDisplayEl = document.getElementById('date-display');
+        const timeIconEl = document.getElementById('time-icon');
+
+        // SVG Icons for different times of day
+        const sunIcon = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+        `;
+
+        const moonIcon = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        `;
+
+        // Load saved name from localStorage if available
+        function loadSavedName() {
+            const savedName = localStorage.getItem('notion_widget_name');
+            if (savedName && savedName.trim() !== "") {
+                userNameEl.textContent = savedName;
+            }
+        }
+
+        // Save name to localStorage
+        function saveName() {
+            let currentText = userNameEl.textContent.trim();
+            if (currentText === "" || currentText === "[]") {
+                currentText = "[Your Name]";
+                userNameEl.textContent = currentText;
+            }
+            localStorage.setItem('notion_widget_name', currentText);
+        }
+
+        // Event listeners for editable name
+        userNameEl.addEventListener('blur', saveName);
+        userNameEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                userNameEl.blur(); // Save and lose focus on Enter
+            }
+        });
+
+        // Update Time, Greeting, and Date
+        function updateWidget() {
+            const now = new Date();
+
+            // Format Hours & Minutes (24-Hour Format: HH:MM)
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            clockEl.textContent = `${hours}:${minutes}`;
+
+            // Greeting & Icon Logic based on hour
+            const currentHour = now.getHours();
+            let greeting = "";
+
+            if (currentHour >= 5 && currentHour < 12) {
+                greeting = "Good morning,";
+                timeIconEl.innerHTML = sunIcon;
+            } else if (currentHour >= 12 && currentHour < 17) {
+                greeting = "Good afternoon,";
+                timeIconEl.innerHTML = sunIcon;
+            } else if (currentHour >= 17 && currentHour < 22) {
+                greeting = "Good evening,";
+                timeIconEl.innerHTML = sunIcon;
+            } else {
+                greeting = "Good night,";
+                timeIconEl.innerHTML = moonIcon;
+            }
+
+            greetingTextEl.textContent = greeting;
+
+            // Format Date (e.g. "WED, OCT 21")
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+            const dayName = days[now.getDay()];
+            const monthName = months[now.getMonth()];
+            const dayNum = now.getDate();
+
+            dateDisplayEl.textContent = `${dayName}, ${monthName} ${dayNum}`;
+        }
+
+        // Initialize widget on load
+        window.onload = function() {
+            loadSavedName();
+            updateWidget();
+            // Update clock every second
+            setInterval(updateWidget, 1000);
+        };
+    </script>
+</body>
+</html>
